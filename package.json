@@ -1,0 +1,14 @@
+{
+  "name": "bootcamp2-projeto-final",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pokédex do Time — Bootcamp II Etapa 03",
+  "scripts": {
+    "test": "vitest run",
+    "dev": "npx serve app"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.9"
+  }
+}
