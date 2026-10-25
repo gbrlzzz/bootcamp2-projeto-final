@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pokédex — Bootcamp II · Etapa 02</title>
-  <!-- Caminho relativo, sem barra inicial: obrigatório para GitHub Pages -->
+  <title>Pokédex do Time — Bootcamp II</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <h1>Pokédex</h1>
-    <p>Busque um Pokémon pelo nome ou número — e salve seus favoritos</p>
+    <h1>Pokédex do Time</h1>
+    <p>Busque um Pokémon, dê sua nota e veja o que o time acha dele</p>
   </header>
 
   <main>
-    <!-- Interação do usuário (Etapa 01): campo + botões que disparam a consulta -->
+    <!-- Busca na PokeAPI -->
     <section class="busca">
       <input
         type="text"
@@ -27,24 +26,27 @@
       <button id="botao-aleatorio" title="Sortear um Pokémon">🎲 Aleatório</button>
     </section>
 
-    <!-- O JavaScript preenche com o cartão de resultado ou mensagem de erro -->
+    <!-- Cartão do Pokémon + formulário de avaliação (preenchidos pelo script.js) -->
     <section id="resultado" aria-live="polite"></section>
 
-    <!-- NOVO (Etapa 02): área de favoritos persistidos no Supabase -->
-    <section class="favoritos">
-      <h2>⭐ Meus favoritos</h2>
-      <div id="lista-favoritos"></div>
+    <!-- Mural de avaliações persistidas no Supabase -->
+    <section class="mural">
+      <div class="mural-topo">
+        <h2>📋 Mural de avaliações</h2>
+        <input type="search" id="filtro-mural" placeholder="Filtrar por Pokémon ou autor">
+      </div>
+      <div id="lista-avaliacoes"></div>
     </section>
   </main>
 
   <footer>
     Dados: <a href="https://pokeapi.co" target="_blank" rel="noopener">PokeAPI</a>
     · Persistência: <a href="https://supabase.com" target="_blank" rel="noopener">Supabase</a>
-    · Bootcamp II — Etapa 02
+    · Bootcamp II — Projeto Final
   </footer>
 
-  <!-- NOVO (Etapa 02): biblioteca do Supabase + configuração, ANTES do script.js -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Biblioteca do Supabase e configuração ANTES do script principal -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
   <script src="config.js"></script>
   <script type="module" src="script.js"></script>
 </body>
