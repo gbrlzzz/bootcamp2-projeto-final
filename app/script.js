@@ -1,31 +1,33 @@
 /* ============================================================
-   Pokédex — Bootcamp II · Etapa 02
-   Etapa 01: consumo da PokeAPI com fetch + tratamento de erros
-   Etapa 02: persistência de favoritos no Supabase (CRUD)
+   Pokédex do Time — Bootcamp II · Projeto Final
+   PokeAPI (consulta) + Supabase (avaliações do time: C, R, D)
    ============================================================ */
-
-// ---------- Etapa 01: consulta à API pública ----------
-
-// URL base da API: apenas o termo de busca muda a cada consulta
-const URL_BASE = "https://pokeapi.co/api/v2/pokemon/";
 
 // Funções puras (testadas no CI) ficam em utils.js
 import {
   TOTAL_POKEMON, normalizarTermo, validarTermo, formatarNome,
   formatarNumero, converterAltura, converterPeso,
+  estrelas, escaparHTML, montarAvaliacao,
 } from "./utils.js";
 
-// Referências aos elementos da página (as "alças" do HTML)
+// URL base da API: apenas o termo de busca muda a cada consulta
+const URL_BASE = "https://pokeapi.co/api/v2/pokemon/";
+
+// Referências aos elementos da página
 const campoBusca = document.getElementById("campo-busca");
 const botaoBuscar = document.getElementById("botao-buscar");
 const botaoAleatorio = document.getElementById("botao-aleatorio");
 const areaResultado = document.getElementById("resultado");
-const listaFavoritos = document.getElementById("lista-favoritos");
+const listaAvaliacoes = document.getElementById("lista-avaliacoes");
+const filtroMural = document.getElementById("filtro-mural");
 
-// ---------- Etapa 02: conexão com o banco (usa config.js) ----------
-// Se o config.js ainda estiver com os placeholders, a aplicação segue
-// funcionando (busca da Etapa 01) e avisa na área de favoritos.
+// Pokémon exibido no cartão (é ele que o formulário avalia)
+let pokemonAtual = null;
+// Última lista vinda do banco (o filtro trabalha em cima dela)
+let avaliacoes = [];
 
+// ---------- Conexão com o banco (usa config.js) ----------
+// Sem config válido a busca continua funcionando e o mural avisa.
 const supabaseConfigurado =
   typeof SUPABASE_URL === "string" &&
   !SUPABASE_URL.includes("SEU-PROJETO") &&
@@ -35,130 +37,166 @@ const db = supabaseConfigurado
   ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
-// ---------- Função principal da Etapa 01: consulta e monta o cartão ----------
+// ---------- Consulta à PokeAPI e montagem do cartão ----------
 async function buscarPokemon(termo) {
-  // Feedback imediato: a requisição demora, o usuário precisa saber
   areaResultado.innerHTML = '<p class="carregando">Carregando...</p>';
 
   try {
-    // 1) Requisição assíncrona à API
     const resposta = await fetch(URL_BASE + termo);
-
-    // 2) O fetch NÃO lança erro em 404 — verificamos manualmente.
+    // O fetch NÃO lança erro em 404 — verificamos manualmente
     if (!resposta.ok) throw new Error("nao-encontrado");
-
-    // 3) Converte o corpo da resposta (texto JSON) em objeto JavaScript
     const dados = await resposta.json();
+    pokemonAtual = dados;
 
-    // 4) Extrai as informações (6 — o mínimo exigido era 3)
-    const nome = dados.name;
-    const numero = dados.id;
+    const nome = formatarNome(dados.name);
     const imagem = dados.sprites.front_default;
-    const altura = converterAltura(dados.height);
-    const peso = converterPeso(dados.weight);
     const tipos = dados.types
       .map((t) => `<span class="tipo">${t.type.name}</span>`)
       .join("");
-
-    // 5) Monta o HTML do cartão (sprite nulo ganha um marcador)
     const imgHTML = imagem
       ? `<img src="${imagem}" alt="Imagem de ${nome}">`
       : `<p style="font-size:4rem">❓</p>`;
 
-    // NOVO (Etapa 02): botão de salvar nos favoritos dentro do cartão
     areaResultado.innerHTML = `
       <article class="cartao">
         ${imgHTML}
-        <h2>${formatarNumero(numero)} — ${formatarNome(nome)}</h2>
+        <h2>${formatarNumero(dados.id)} — ${nome}</h2>
         <p>${tipos}</p>
         <p class="info">
-          <b>Altura:</b> ${altura} m &nbsp;·&nbsp; <b>Peso:</b> ${peso} kg
+          <b>Altura:</b> ${converterAltura(dados.height)} m &nbsp;·&nbsp;
+          <b>Peso:</b> ${converterPeso(dados.weight)} kg
         </p>
-        <button class="btn-favoritar"
-          onclick="salvarFavorito(${numero}, '${nome}', '${imagem}')">
-          ⭐ Salvar nos favoritos
-        </button>
+        <form id="form-avaliacao" class="form-avaliacao">
+          <h3>Avaliar ${nome}</h3>
+          <input name="autor" placeholder="Seu nome" maxlength="40" required>
+          <select name="nota" required>
+            <option value="">Nota…</option>
+            <option value="5">★★★★★ (5)</option>
+            <option value="4">★★★★☆ (4)</option>
+            <option value="3">★★★☆☆ (3)</option>
+            <option value="2">★★☆☆☆ (2)</option>
+            <option value="1">★☆☆☆☆ (1)</option>
+          </select>
+          <textarea name="comentario" placeholder="Comentário (opcional)" maxlength="280"></textarea>
+          <button type="submit">Publicar no mural</button>
+          <p id="msg-form" class="msg-form" aria-live="polite"></p>
+        </form>
       </article>`;
+
+    document.getElementById("form-avaliacao")
+      .addEventListener("submit", salvarAvaliacao);
   } catch (erro) {
-    // Dois erros, duas mensagens (como na Etapa 01)
+    pokemonAtual = null;
     const mensagem =
       erro.message === "nao-encontrado"
-        ? `Nenhum Pokémon encontrado para "<b>${termo}</b>".<br>Confira a grafia (em inglês) ou tente um número de 1 a ${TOTAL_POKEMON}.`
+        ? `Nenhum Pokémon encontrado para "<b>${escaparHTML(termo)}</b>".<br>Confira a grafia (em inglês) ou tente um número de 1 a ${TOTAL_POKEMON}.`
         : "Não foi possível consultar a PokeAPI agora.<br>Verifique sua conexão e tente novamente.";
-
     areaResultado.innerHTML = `<div class="erro">${mensagem}</div>`;
   }
 }
 
-// ============================================================
-// Etapa 02 — CRUD de favoritos no Supabase
-// Padrão do supabase-js: toda chamada retorna { data, error }.
-// Ignorar o error é a causa nº 1 de "salvei mas não salvou".
-// ============================================================
+// ---------- CREATE: publicar avaliação ----------
+async function salvarAvaliacao(evento) {
+  evento.preventDefault();
+  const form = evento.target;
+  const msg = document.getElementById("msg-form");
 
-// ---------- CREATE: salvar o Pokémon exibido como favorito ----------
-async function salvarFavorito(numero, nome, imagem) {
   if (!db) {
-    alert("Configure o Supabase no config.js para salvar favoritos (tutorial, Passo 2).");
+    msg.textContent = "Supabase não configurado — veja o README.";
     return;
   }
-  const { error } = await db.from("favoritos")
-                            .insert({ numero, nome, imagem });
+
+  const { registro, erro } = montarAvaliacao(pokemonAtual, {
+    nota: form.nota.value,
+    comentario: form.comentario.value,
+    autor: form.autor.value,
+  });
+  if (erro) {
+    msg.textContent = erro;
+    return;
+  }
+
+  form.querySelector("button").disabled = true;
+  const { error } = await db.from("avaliacoes").insert(registro);
+  form.querySelector("button").disabled = false;
+
   if (error) {
-    // 23505 = violação de UNIQUE no banco: o Pokémon já é favorito
-    const msg = error.code === "23505"
-      ? `${nome} já está nos seus favoritos!`
-      : "Não foi possível salvar agora. Tente novamente.";
-    alert(msg);
+    msg.textContent = "Não foi possível salvar agora. Tente novamente.";
     return;
   }
-  carregarFavoritos();   // atualiza a lista na tela
+  msg.textContent = "Avaliação publicada! ✅";
+  form.nota.value = "";
+  form.comentario.value = "";
+  carregarAvaliacoes();
 }
 
-// ---------- READ: carregar e exibir os favoritos ----------
-async function carregarFavoritos() {
+// ---------- READ: carregar o mural ----------
+async function carregarAvaliacoes() {
   if (!db) {
-    listaFavoritos.innerHTML =
-      '<div class="aviso-config">Favoritos ainda não configurados.<br>' +
-      "Siga o Passo 2 do tutorial para conectar o Supabase — " +
-      "a busca acima já funciona normalmente.</div>";
+    listaAvaliacoes.innerHTML =
+      '<div class="aviso-config">Mural ainda não configurado.<br>' +
+      "Preencha o config.js (ou as variáveis do Docker) — a busca acima já funciona.</div>";
     return;
   }
 
-  const { data, error } = await db.from("favoritos")
+  const { data, error } = await db.from("avaliacoes")
     .select("*")
     .order("criado_em", { ascending: false });
 
   if (error) {
-    listaFavoritos.innerHTML =
-      '<div class="erro">Não foi possível carregar os favoritos.<br>' +
-      "Verifique sua conexão e as políticas RLS (tutorial, Passo 2.3).</div>";
+    listaAvaliacoes.innerHTML =
+      '<div class="erro">Não foi possível carregar o mural.<br>' +
+      "Verifique sua conexão e as políticas RLS.</div>";
     return;
   }
-  if (data.length === 0) {
-    listaFavoritos.innerHTML = "<p>Nenhum favorito ainda. Busque e salve!</p>";
+  avaliacoes = data;
+  renderizarMural();
+}
+
+function renderizarMural() {
+  const filtro = filtroMural.value.trim().toLowerCase();
+  const visiveis = avaliacoes.filter((a) =>
+    !filtro ||
+    a.nome.includes(normalizarTermo(filtro)) ||
+    a.autor.toLowerCase().includes(filtro)
+  );
+
+  if (avaliacoes.length === 0) {
+    listaAvaliacoes.innerHTML = "<p>Nenhuma avaliação ainda. Busque um Pokémon e seja o primeiro!</p>";
     return;
   }
-  listaFavoritos.innerHTML = data.map((f) => `
-    <div class="fav-item">
-      <img src="${f.imagem}" alt="${f.nome}">
-      <span>#${f.numero} ${f.nome}</span>
-      <button onclick="removerFavorito(${f.numero})" title="Remover">✖</button>
+  if (visiveis.length === 0) {
+    listaAvaliacoes.innerHTML = "<p>Nada encontrado para esse filtro.</p>";
+    return;
+  }
+
+  listaAvaliacoes.innerHTML = visiveis.map((a) => `
+    <div class="aval-item">
+      ${a.imagem ? `<img src="${escaparHTML(a.imagem)}" alt="${escaparHTML(a.nome)}">` : ""}
+      <div class="aval-corpo">
+        <div class="aval-titulo">
+          <b>${formatarNumero(a.numero)} ${escaparHTML(formatarNome(a.nome))}</b>
+          <span class="estrelas" title="${a.nota} de 5">${estrelas(a.nota)}</span>
+        </div>
+        ${a.comentario ? `<p>${escaparHTML(a.comentario)}</p>` : ""}
+        <small>por ${escaparHTML(a.autor)} · ${new Date(a.criado_em).toLocaleDateString("pt-BR")}</small>
+      </div>
+      <button data-excluir="${a.id}" title="Excluir avaliação">✖</button>
     </div>`).join("");
 }
 
-// ---------- DELETE: remover um favorito ----------
-async function removerFavorito(numero) {
-  const { error } = await db.from("favoritos")
-                            .delete().eq("numero", numero);
+// ---------- DELETE: excluir avaliação ----------
+async function excluirAvaliacao(id) {
+  if (!confirm("Excluir esta avaliação do mural?")) return;
+  const { error } = await db.from("avaliacoes").delete().eq("id", id);
   if (error) {
-    alert("Não foi possível remover agora.");
+    alert("Não foi possível excluir agora.");
     return;
   }
-  carregarFavoritos();
+  carregarAvaliacoes();
 }
 
-// ---------- Eventos: botão Buscar, tecla Enter e botão Aleatório ----------
+// ---------- Eventos ----------
 function dispararBusca() {
   if (!validarTermo(campoBusca.value)) {
     areaResultado.innerHTML =
@@ -180,10 +218,13 @@ botaoAleatorio.addEventListener("click", () => {
   buscarPokemon(sorteado);
 });
 
-// Como script.js agora é um módulo, os onclick do HTML gerado
-// só enxergam funções expostas explicitamente no window
-window.salvarFavorito = salvarFavorito;
-window.removerFavorito = removerFavorito;
+filtroMural.addEventListener("input", renderizarMural);
 
-// ---------- Carrega a lista de favoritos assim que a página abre ----------
-carregarFavoritos();
+// Um único listener cuida de todos os botões de excluir do mural
+listaAvaliacoes.addEventListener("click", (evento) => {
+  const botao = evento.target.closest("[data-excluir]");
+  if (botao) excluirAvaliacao(Number(botao.dataset.excluir));
+});
+
+// Carrega o mural assim que a página abre
+carregarAvaliacoes();

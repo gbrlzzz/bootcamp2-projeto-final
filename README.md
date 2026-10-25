@@ -21,6 +21,14 @@ Ponto de partida: código da Etapa 02 na pasta [`app/`](app/).
 
 ## Como executar
 
+### Localmente
+
+1. Clone: `git clone https://github.com/gbrlzzz/bootcamp2-projeto-final.git`
+2. Sirva a pasta `app/` (ex.: `python3 -m http.server 5500 -d app`) e abra http://localhost:5500
+3. O `app/config.js` já aponta para o Supabase do time; para usar outro banco, rode `docs/setup_supabase.sql` no seu projeto e troque a URL e a chave.
+
+### Com Docker
+
 Com Docker (precisa só do Docker instalado):
 
 ```bash
