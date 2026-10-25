@@ -18,3 +18,14 @@ Aplicação web colaborativa construída na Etapa 03, evoluindo a Pokédex das E
 | Ranking do time | Gabriel | `feature/ranking` |
 
 Ponto de partida: código da Etapa 02 na pasta [`app/`](app/).
+
+## Como executar
+
+Com Docker (precisa só do Docker instalado):
+
+```bash
+docker build -t pokedex-do-time .
+docker run -d -p 8080:80 pokedex-do-time
+```
+
+Depois abra http://localhost:8080

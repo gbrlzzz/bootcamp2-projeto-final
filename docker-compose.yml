@@ -1,0 +1,9 @@
+# Sobe a aplicação com: docker compose up --build
+services:
+  app:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:-}
