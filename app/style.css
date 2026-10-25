@@ -1,5 +1,5 @@
 /* ============================================================
-   Pokédex — Bootcamp II · Etapa 02
+   Pokédex do Time — Bootcamp II · Projeto Final
    Paleta: roxo #7e22ce (principal) · amarelo #fbbf24 (destaque)
    ============================================================ */
 
@@ -143,22 +143,6 @@ header p {
   font-weight: 600;
 }
 
-/* Botão de favoritar dentro do cartão (NOVO — Etapa 02) */
-.btn-favoritar {
-  margin-top: 10px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  background: #fbbf24;
-  color: #4c1d95;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-favoritar:hover {
-  background: #f59e0b;
-}
-
 /* Mensagem de erro amigável */
 .erro {
   background: #fef2f2;
@@ -171,44 +155,137 @@ header p {
   line-height: 1.5;
 }
 
-/* ---------- Favoritos persistidos (NOVO — Etapa 02) ---------- */
-.favoritos {
-  max-width: 440px;
+/* ---------- Formulário de avaliação ---------- */
+.form-avaliacao {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #ede9fe;
+  text-align: left;
+}
+
+.form-avaliacao h3 {
+  color: #6b21a8;
+  font-size: 1rem;
+}
+
+.form-avaliacao input,
+.form-avaliacao select,
+.form-avaliacao textarea {
+  padding: 8px 10px;
+  border: 1px solid #d8b4fe;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.form-avaliacao textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.form-avaliacao button {
+  padding: 9px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #fbbf24;
+  color: #4c1d95;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.form-avaliacao button:hover {
+  background: #f59e0b;
+}
+
+.form-avaliacao button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+.msg-form {
+  font-size: .9rem;
+  color: #6b21a8;
+  min-height: 1.2em;
+}
+
+/* ---------- Mural de avaliações ---------- */
+.mural {
+  max-width: 560px;
   margin: 0 auto;
   padding: 0 16px 40px;
   width: 100%;
   flex: 1;
 }
 
-.favoritos h2 {
-  color: #7e22ce;
-  text-align: center;
+.mural-topo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 12px;
 }
 
-.fav-item {
+.mural h2 {
+  color: #7e22ce;
+}
+
+.mural-topo input {
+  padding: 7px 12px;
+  border: 1px solid #d8b4fe;
+  border-radius: 8px;
+  font: inherit;
+  flex: 1;
+  min-width: 180px;
+  max-width: 260px;
+}
+
+.aval-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   background: #fff;
   border-radius: 10px;
-  padding: 6px 12px;
+  padding: 10px 12px;
   margin-bottom: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
-  text-transform: capitalize;
 }
 
-.fav-item img {
-  width: 48px;
-  height: 48px;
+.aval-item img {
+  width: 56px;
+  height: 56px;
   image-rendering: pixelated;
 }
 
-.fav-item span {
+.aval-corpo {
   flex: 1;
+  min-width: 0;
 }
 
-.fav-item button {
+.aval-titulo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.aval-corpo p {
+  margin: 4px 0;
+  overflow-wrap: anywhere;
+}
+
+.aval-corpo small {
+  color: #777;
+}
+
+.estrelas {
+  color: #f59e0b;
+  letter-spacing: 1px;
+}
+
+.aval-item button {
   border: none;
   background: #fef2f2;
   color: #b91c1c;
@@ -217,7 +294,7 @@ header p {
   cursor: pointer;
 }
 
-.fav-item button:hover {
+.aval-item button:hover {
   background: #fecaca;
 }
 
