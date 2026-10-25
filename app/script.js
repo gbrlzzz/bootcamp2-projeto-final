@@ -9,8 +9,11 @@
 // URL base da API: apenas o termo de busca muda a cada consulta
 const URL_BASE = "https://pokeapi.co/api/v2/pokemon/";
 
-// Total de Pokémon da Pokédex Nacional (usado no botão Aleatório)
-const TOTAL_POKEMON = 1025;
+// Funções puras (testadas no CI) ficam em utils.js
+import {
+  TOTAL_POKEMON, normalizarTermo, validarTermo, formatarNome,
+  formatarNumero, converterAltura, converterPeso,
+} from "./utils.js";
 
 // Referências aos elementos da página (as "alças" do HTML)
 const campoBusca = document.getElementById("campo-busca");
@@ -51,8 +54,8 @@ async function buscarPokemon(termo) {
     const nome = dados.name;
     const numero = dados.id;
     const imagem = dados.sprites.front_default;
-    const altura = dados.height / 10; // decímetros -> metros
-    const peso = dados.weight / 10;   // hectogramas -> kg
+    const altura = converterAltura(dados.height);
+    const peso = converterPeso(dados.weight);
     const tipos = dados.types
       .map((t) => `<span class="tipo">${t.type.name}</span>`)
       .join("");
@@ -66,7 +69,7 @@ async function buscarPokemon(termo) {
     areaResultado.innerHTML = `
       <article class="cartao">
         ${imgHTML}
-        <h2>#${numero} — ${nome}</h2>
+        <h2>${formatarNumero(numero)} — ${formatarNome(nome)}</h2>
         <p>${tipos}</p>
         <p class="info">
           <b>Altura:</b> ${altura} m &nbsp;·&nbsp; <b>Peso:</b> ${peso} kg
@@ -157,9 +160,12 @@ async function removerFavorito(numero) {
 
 // ---------- Eventos: botão Buscar, tecla Enter e botão Aleatório ----------
 function dispararBusca() {
-  // Higienização: a PokeAPI só aceita minúsculas
-  const termo = campoBusca.value.toLowerCase().trim();
-  if (termo) buscarPokemon(termo);
+  if (!validarTermo(campoBusca.value)) {
+    areaResultado.innerHTML =
+      '<div class="erro">Digite um nome (ex.: pikachu) ou um número de 1 a ' + TOTAL_POKEMON + ".</div>";
+    return;
+  }
+  buscarPokemon(normalizarTermo(campoBusca.value));
 }
 
 botaoBuscar.addEventListener("click", dispararBusca);
@@ -173,6 +179,11 @@ botaoAleatorio.addEventListener("click", () => {
   campoBusca.value = sorteado;
   buscarPokemon(sorteado);
 });
+
+// Como script.js agora é um módulo, os onclick do HTML gerado
+// só enxergam funções expostas explicitamente no window
+window.salvarFavorito = salvarFavorito;
+window.removerFavorito = removerFavorito;
 
 // ---------- Carrega a lista de favoritos assim que a página abre ----------
 carregarFavoritos();
