@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokédex — Bootcamp II · Etapa 02</title>
+  <!-- Caminho relativo, sem barra inicial: obrigatório para GitHub Pages -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Pokédex</h1>
+    <p>Busque um Pokémon pelo nome ou número — e salve seus favoritos</p>
+  </header>
+
+  <main>
+    <!-- Interação do usuário (Etapa 01): campo + botões que disparam a consulta -->
+    <section class="busca">
+      <input
+        type="text"
+        id="campo-busca"
+        placeholder="Ex.: pikachu ou 25"
+        autocomplete="off"
+        autofocus
+      >
+      <button id="botao-buscar">Buscar</button>
+      <button id="botao-aleatorio" title="Sortear um Pokémon">🎲 Aleatório</button>
+    </section>
+
+    <!-- O JavaScript preenche com o cartão de resultado ou mensagem de erro -->
+    <section id="resultado" aria-live="polite"></section>
+
+    <!-- NOVO (Etapa 02): área de favoritos persistidos no Supabase -->
+    <section class="favoritos">
+      <h2>⭐ Meus favoritos</h2>
+      <div id="lista-favoritos"></div>
+    </section>
+  </main>
+
+  <footer>
+    Dados: <a href="https://pokeapi.co" target="_blank" rel="noopener">PokeAPI</a>
+    · Persistência: <a href="https://supabase.com" target="_blank" rel="noopener">Supabase</a>
+    · Bootcamp II — Etapa 02
+  </footer>
+
+  <!-- NOVO (Etapa 02): biblioteca do Supabase + configuração, ANTES do script.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
