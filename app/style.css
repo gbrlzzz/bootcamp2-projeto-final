@@ -1,0 +1,245 @@
+/* ============================================================
+   Pokédex — Bootcamp II · Etapa 02
+   Paleta: roxo #7e22ce (principal) · amarelo #fbbf24 (destaque)
+   ============================================================ */
+
+/* Reset básico e fonte */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f4f4f8;
+  color: #222;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Cabeçalho ---------- */
+header {
+  background: linear-gradient(135deg, #6b21a8, #7e22ce);
+  color: #fff;
+  text-align: center;
+  padding: 28px 16px;
+}
+
+header h1 {
+  font-size: 2rem;
+  letter-spacing: 1px;
+}
+
+header p {
+  color: #e9d5ff;
+  margin-top: 4px;
+}
+
+/* ---------- Área de busca ---------- */
+.busca {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  padding: 28px 16px 20px;
+}
+
+.busca input {
+  padding: 10px 14px;
+  border: 2px solid #7e22ce;
+  border-radius: 8px;
+  width: min(320px, 70vw);
+  font-size: 1rem;
+  outline: none;
+}
+
+.busca input:focus {
+  box-shadow: 0 0 0 3px #e9d5ff;
+}
+
+.busca button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #7e22ce;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.busca button:hover {
+  background: #6b21a8;
+}
+
+#botao-aleatorio {
+  background: #fbbf24;
+  color: #4c1d95;
+  font-weight: 600;
+}
+
+#botao-aleatorio:hover {
+  background: #f59e0b;
+}
+
+/* ---------- Área de resultado ---------- */
+#resultado {
+  display: flex;
+  justify-content: center;
+  padding: 0 16px 24px;
+}
+
+.carregando {
+  color: #6b21a8;
+  font-weight: 600;
+  padding: 24px;
+}
+
+/* Cartão do Pokémon (injetado pelo script.js) */
+.cartao {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+  padding: 24px;
+  text-align: center;
+  width: min(380px, 92vw);
+  animation: aparecer .25s ease-out;
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cartao img {
+  width: 150px;
+  height: 150px;
+  image-rendering: pixelated;   /* mantém o estilo pixelado dos sprites */
+}
+
+.cartao h2 {
+  text-transform: capitalize;
+  margin: 8px 0 4px;
+  color: #7e22ce;
+}
+
+.cartao .info {
+  margin: 10px 0;
+  line-height: 1.7;
+}
+
+/* Etiquetas de tipo (electric, fire, water...) */
+.tipo {
+  display: inline-block;
+  background: #ede9fe;
+  color: #6b21a8;
+  border-radius: 999px;
+  padding: 3px 14px;
+  margin: 2px;
+  font-size: .85rem;
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+/* Botão de favoritar dentro do cartão (NOVO — Etapa 02) */
+.btn-favoritar {
+  margin-top: 10px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #fbbf24;
+  color: #4c1d95;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-favoritar:hover {
+  background: #f59e0b;
+}
+
+/* Mensagem de erro amigável */
+.erro {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 18px 22px;
+  text-align: center;
+  max-width: 420px;
+  line-height: 1.5;
+}
+
+/* ---------- Favoritos persistidos (NOVO — Etapa 02) ---------- */
+.favoritos {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 0 16px 40px;
+  width: 100%;
+  flex: 1;
+}
+
+.favoritos h2 {
+  color: #7e22ce;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.fav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 6px 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+  text-transform: capitalize;
+}
+
+.fav-item img {
+  width: 48px;
+  height: 48px;
+  image-rendering: pixelated;
+}
+
+.fav-item span {
+  flex: 1;
+}
+
+.fav-item button {
+  border: none;
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.fav-item button:hover {
+  background: #fecaca;
+}
+
+.aviso-config {
+  background: #fefce8;
+  border: 1px solid #fde68a;
+  color: #a16207;
+  border-radius: 10px;
+  padding: 14px 18px;
+  text-align: center;
+  line-height: 1.5;
+  font-size: .95rem;
+}
+
+/* ---------- Rodapé ---------- */
+footer {
+  text-align: center;
+  padding: 16px;
+  color: #777;
+  font-size: .85rem;
+}
+
+footer a {
+  color: #7e22ce;
+}
