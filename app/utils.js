@@ -97,3 +97,23 @@ export function montarAvaliacao(pokemon, { nota, comentario, autor }) {
     },
   };
 }
+
+// ---------- Ranking do time ----------
+
+// Agrupa as avaliações por Pokémon e ordena pela média de notas
+// (desempate: quem tem mais avaliações; depois o número da Pokédex)
+export function calcularRanking(avaliacoes, limite = 5) {
+  const grupos = new Map();
+  for (const a of avaliacoes) {
+    const g = grupos.get(a.numero) ?? { numero: a.numero, nome: a.nome, imagem: a.imagem, soma: 0, total: 0 };
+    g.soma += a.nota;
+    g.total += 1;
+    grupos.set(a.numero, g);
+  }
+  return [...grupos.values()]
+    // Ordena pela média exata; só arredonda para exibir
+    .map((g) => ({ ...g, exata: g.soma / g.total }))
+    .sort((x, y) => y.exata - x.exata || y.total - x.total || x.numero - y.numero)
+    .slice(0, limite)
+    .map(({ soma, exata, ...g }) => ({ ...g, media: Math.round(exata * 10) / 10 }));
+}

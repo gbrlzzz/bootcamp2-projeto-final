@@ -7,7 +7,7 @@
 import {
   TOTAL_POKEMON, normalizarTermo, validarTermo, formatarNome,
   formatarNumero, converterAltura, converterPeso,
-  estrelas, escaparHTML, montarAvaliacao,
+  estrelas, escaparHTML, montarAvaliacao, calcularRanking,
 } from "./utils.js";
 
 // URL base da API: apenas o termo de busca muda a cada consulta
@@ -20,6 +20,7 @@ const botaoAleatorio = document.getElementById("botao-aleatorio");
 const areaResultado = document.getElementById("resultado");
 const listaAvaliacoes = document.getElementById("lista-avaliacoes");
 const filtroMural = document.getElementById("filtro-mural");
+const listaRanking = document.getElementById("lista-ranking");
 
 // Pokémon exibido no cartão (é ele que o formulário avalia)
 let pokemonAtual = null;
@@ -150,7 +151,21 @@ async function carregarAvaliacoes() {
     return;
   }
   avaliacoes = data;
+  renderizarRanking();
   renderizarMural();
+}
+
+function renderizarRanking() {
+  const ranking = calcularRanking(avaliacoes);
+  listaRanking.innerHTML = ranking.length === 0
+    ? "<p>O ranking aparece depois da primeira avaliação.</p>"
+    : ranking.map((r) => `
+      <li>
+        ${r.imagem ? `<img src="${escaparHTML(r.imagem)}" alt="">` : ""}
+        <span>${escaparHTML(formatarNome(r.nome))}</span>
+        <b>${r.media.toFixed(1)} ★</b>
+        <small>(${r.total} ${r.total === 1 ? "voto" : "votos"})</small>
+      </li>`).join("");
 }
 
 function renderizarMural() {
