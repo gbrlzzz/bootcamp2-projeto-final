@@ -111,7 +111,9 @@ export function calcularRanking(avaliacoes, limite = 5) {
     grupos.set(a.numero, g);
   }
   return [...grupos.values()]
-    .map(({ soma, ...g }) => ({ ...g, media: Math.round((soma / g.total) * 10) / 10 }))
-    .sort((x, y) => y.media - x.media || y.total - x.total || x.numero - y.numero)
-    .slice(0, limite);
+    // Ordena pela média exata; só arredonda para exibir
+    .map((g) => ({ ...g, exata: g.soma / g.total }))
+    .sort((x, y) => y.exata - x.exata || y.total - x.total || x.numero - y.numero)
+    .slice(0, limite)
+    .map(({ soma, exata, ...g }) => ({ ...g, media: Math.round(exata * 10) / 10 }));
 }
