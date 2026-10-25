@@ -15,6 +15,15 @@ describe("calcularRanking", () => {
     expect(ranking.map((r) => r.nome)).toEqual(["squirtle", "charmander"]);
   });
 
+  test("ordena pela média exata, não pela arredondada", () => {
+    // charmander: 4.04 (25 votos) · squirtle: 4.0 (30 votos) — ambos exibem 4.0
+    const charmander = [...Array(24).fill(4), 5].map((n) => av(4, "charmander", n));
+    const squirtle = Array(30).fill(4).map((n) => av(7, "squirtle", n));
+    const ranking = calcularRanking([...squirtle, ...charmander]);
+    expect(ranking.map((r) => r.nome)).toEqual(["charmander", "squirtle"]);
+    expect(ranking[0].media).toBe(4);
+  });
+
   test("respeita o limite e funciona com lista vazia", () => {
     const muitas = Array.from({ length: 8 }, (_, i) => av(i + 1, `p${i + 1}`, 3));
     expect(calcularRanking(muitas, 3)).toHaveLength(3);
