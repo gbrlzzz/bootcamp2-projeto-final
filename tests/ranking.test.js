@@ -7,8 +7,7 @@ describe("calcularRanking", () => {
   test("agrupa por Pokémon e calcula a média com 1 casa", () => {
     const ranking = calcularRanking([av(25, "pikachu", 5), av(25, "pikachu", 4), av(1, "bulbasaur", 3)]);
     expect(ranking[0]).toEqual({ numero: 25, nome: "pikachu", imagem: null, total: 2, media: 4.5 });
-    // QUEBRADO DE PROPÓSITO (teste de fogo do CI): a média do bulbasaur é 3, não 5
-    expect(ranking[1].media).toBe(5);
+    expect(ranking[1].media).toBe(3);
   });
 
   test("desempata pelo número de avaliações", () => {
