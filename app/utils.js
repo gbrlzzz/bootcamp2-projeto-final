@@ -46,3 +46,54 @@ export function converterPeso(hectogramas) {
 export function formatarNumero(numero) {
   return "#" + String(numero).padStart(3, "0");
 }
+
+// ---------- Avaliações (persistidas no Supabase) ----------
+
+// Nota é um inteiro de 1 a 5 estrelas (aceita "4" vindo do <select>)
+export function validarNota(nota) {
+  const n = Number(nota);
+  return Number.isInteger(n) && n >= 1 && n <= 5;
+}
+
+// Autor: 2 a 40 caracteres depois de tirar os espaços das pontas
+export function validarAutor(autor) {
+  const nome = String(autor ?? "").trim();
+  return nome.length >= 2 && nome.length <= 40;
+}
+
+// 4 -> "★★★★☆"
+export function estrelas(nota) {
+  const n = Math.max(0, Math.min(5, Math.round(Number(nota) || 0)));
+  return "★".repeat(n) + "☆".repeat(5 - n);
+}
+
+// Comentários e nomes vêm de outras pessoas: nunca entram no
+// innerHTML sem escapar (senão um "<script>" viraria código)
+export function escaparHTML(texto) {
+  return String(texto ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// Monta o registro que vai para a tabela "avaliacoes" a partir do
+// JSON da PokeAPI + formulário. Retorna { erro } se algo for inválido.
+export function montarAvaliacao(pokemon, { nota, comentario, autor }) {
+  if (!validarNota(nota)) return { erro: "Escolha uma nota de 1 a 5." };
+  if (!validarAutor(autor)) return { erro: "Informe seu nome (2 a 40 letras)." };
+  const texto = String(comentario ?? "").trim();
+  if (texto.length > 280) return { erro: "Comentário com no máximo 280 caracteres." };
+  return {
+    registro: {
+      numero: pokemon.id,
+      nome: pokemon.name,
+      imagem: pokemon.sprites?.front_default ?? null,
+      tipos: (pokemon.types ?? []).map((t) => t.type.name),
+      nota: Number(nota),
+      comentario: texto || null,
+      autor: String(autor).trim(),
+    },
+  };
+}
