@@ -31,6 +31,8 @@ Ruleset **"Protege a main"** (Settings → Rules), sem ninguém na lista de bypa
 - **Require status checks to pass**: o check `testes` (GitHub Actions) é obrigatório e a branch precisa estar atualizada com a main;
 - bloqueio de force-push e de exclusão da main.
 
+> **Sobre o grupo:** não consegui contato com nenhum colega para formar um grupo, então fiz o projeto sozinho, seguindo o mesmo fluxo (branch, PR, revisão e CI) que um time usaria.
+>
 > **Sobre a aprovação obrigatória:** o grupo tem um integrante só, e o GitHub não deixa o autor aprovar a própria PR. Por isso a regra está com **0 aprovações obrigatórias**. Se fosse 1, nenhuma PR poderia ser mesclada. Toda PR mesmo assim recebeu revisão com comentário no código, e o merge só aconteceu depois de cada conversa ser respondida e resolvida. A PR #4 também recebeu revisão automática do Codex, que encontrou um bug real no ranking, corrigido na própria PR.
 
 ## 2. A aplicação
@@ -61,7 +63,7 @@ Ruleset **"Protege a main"** (Settings → Rules), sem ninguém na lista de bypa
 | comentario | text | até 280 caracteres |
 | autor | text | 2 a 40 caracteres |
 
-RLS ligado, com políticas só para `select`, `insert` e `delete` do papel `anon`. Não existe política de update. Script completo: [`docs/setup_supabase.sql`](docs/setup_supabase.sql).
+RLS ligado, com políticas só para `select`, `insert` e `delete` do papel `anon`. Não existe política de update. Script completo: [`docs/setup_supabase.sql`](https://github.com/gbrlzzz/bootcamp2-projeto-final/blob/main/docs/setup_supabase.sql).
 
 **Limitação conhecida** (levantada na revisão da PR #2): sem login, qualquer visitante pode excluir qualquer avaliação. O próximo passo seria Supabase Auth com uma policy `auth.uid() = user_id`.
 
@@ -115,14 +117,14 @@ São 19 testes com **Vitest** em 3 arquivos:
 - `tests/avaliacoes.test.js`: validação de nota e autor, estrelas, escape de HTML e montagem do registro a partir do JSON da PokeAPI;
 - `tests/ranking.test.js`: média por Pokémon, desempate, ordenação pela média exata e limite.
 
-O workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) roda os mesmos comandos (Node 20) em toda PR para a main e em todo push na main.
+O workflow [`.github/workflows/ci.yml`](https://github.com/gbrlzzz/bootcamp2-projeto-final/blob/main/.github/workflows/ci.yml) roda os mesmos comandos (Node 20) em toda PR para a main e em todo push na main.
 
 ## 5. Evidências
 
 ### PR bloqueada pelo CI (teste de fogo)
 Na [PR #4](https://github.com/gbrlzzz/bootcamp2-projeto-final/pull/4), o primeiro push trouxe um teste quebrado de propósito: esperava média 5 para um Pokémon com nota 3. O check obrigatório `CI - Testes / testes` ficou vermelho e o botão **Merge pull request** ficou desabilitado:
 
-![PR #4 bloqueada pelo CI](docs/evidencias/pr4-bloqueada-pelo-ci.jpg)
+![PR #4 bloqueada pelo CI](https://raw.githubusercontent.com/gbrlzzz/bootcamp2-projeto-final/main/docs/evidencias/pr4-bloqueada-pelo-ci.jpg)
 
 Logo depois o teste foi corrigido na mesma PR ([execução que falhou](https://github.com/gbrlzzz/bootcamp2-projeto-final/actions/runs/40242319571)), o check ficou verde e o merge foi liberado.
 
@@ -140,3 +142,7 @@ Aprendizado: duas branches que mexem no mesmo trecho de um arquivo compartilhado
 ### Outras evidências no GitHub
 - Aba [Pull requests (fechadas)](https://github.com/gbrlzzz/bootcamp2-projeto-final/pulls?q=is%3Apr+is%3Aclosed): todas as PRs têm descrição (o que, por que, como testar), revisão com comentário no código e o check `testes` verde no merge;
 - [Actions](https://github.com/gbrlzzz/bootcamp2-projeto-final/actions): histórico de execuções do CI, incluindo a falha da PR #4.
+
+## 6. Uso de IA
+
+Usei o **Claude Code** (assistente de IA da Anthropic) como assistente neste projeto: na escrita do código e dos testes, na configuração do GitHub Actions, do Docker e do Supabase, na abertura das PRs e na redação deste README. Por isso alguns commits das PRs aparecem com `Co-Authored-By: Claude`. A revisão automática da PR #4 foi feita pelo Codex, que também é uma ferramenta de IA.
